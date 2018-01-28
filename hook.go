@@ -1,9 +1,9 @@
 package logger
 
 import (
+	"fmt"
 	"path"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -29,8 +29,7 @@ func (f *callerHook) Fire(entry *logrus.Entry) error {
 		frame, more := frames.Next()
 
 		if !strings.Contains(frame.File, "github.com/sirupsen/logrus") {
-			line := strconv.Itoa(frame.Line)
-			entry.Data["file"] = frame.File + ":" + line
+			entry.Data["file"] = fmt.Sprintf("%v:%v", frame.File, frame.Line)
 			entry.Data["function"] = path.Base(frame.Function)
 			break
 		}
