@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -24,9 +26,14 @@ func (f *callerHook) Fire(entry *logrus.Entry) error {
 
 	for {
 		frame, more := frames.Next()
-		entry.Data["file"] = frame.File
-		entry.Data["func"] = frame.Function
-		entry.Data["line"] = frame.Line
+
+		if !strings.Contains(frame.File, "runtime") &&
+			!strings.Contains(frame.File, "github.com/valuppo/logger") &&
+			!strings.Contains(frame.File, "github.com/sirupsen/logrus") {
+			entry.Data["file"] = fmt.Sprintf("%v:%v", frame.File, frame.Line)
+			entry.Data["function"] = frame.Function
+		}
+
 		if !more {
 			break
 		}
