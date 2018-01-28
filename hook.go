@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"fmt"
+	"path"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -15,8 +16,8 @@ func (f *callerHook) Levels() []logrus.Level {
 }
 
 func (f *callerHook) Fire(entry *logrus.Entry) error {
-	pc := make([]uintptr, 10)
-	n := runtime.Callers(0, pc)
+	pc := make([]uintptr, 1, 1)
+	n := runtime.Callers(7, pc)
 	if n == 0 {
 		return nil
 	}
@@ -27,11 +28,11 @@ func (f *callerHook) Fire(entry *logrus.Entry) error {
 	for {
 		frame, more := frames.Next()
 
-		if !strings.Contains(frame.File, "runtime") &&
-			!strings.Contains(frame.File, "github.com/valuppo/logger") &&
-			!strings.Contains(frame.File, "github.com/sirupsen/logrus") {
-			entry.Data["file"] = fmt.Sprintf("%v:%v", frame.File, frame.Line)
-			entry.Data["function"] = frame.Function
+		if !strings.Contains(frame.File, "github.com/sirupsen/logrus") {
+			line := strconv.Itoa(frame.Line)
+			entry.Data["file"] = frame.File + ":" + line
+			entry.Data["function"] = path.Base(frame.Function)
+			break
 		}
 
 		if !more {
