@@ -33,3 +33,7 @@ func (f *callerHook) Fire(entry *logrus.Entry) error {
 	}
 	return nil
 }
+
+func NewCallerHook() *callerHook {
+	return &callerHook{}
+}
